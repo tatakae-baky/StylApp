@@ -1,0 +1,65 @@
+.nav {
+  padding: 0;
+}
+
+.nav li .submenu {
+  visibility: hidden; 
+  z-index: 1000;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.nav li .submenu button {
+  font-weight: 400 !important;
+  text-transform: none !important;
+}
+
+.nav li:hover .submenu {
+  opacity: 1 !important; 
+  visibility: inherit; 
+  top: 100%;
+}
+
+.nav li .submenu li:hover button {
+  color: #FF2E4D !important;
+  background-color: #f8f8f8 !important;
+}
+
+.nav li .submenu li .submenu {
+  top: 0px !important; 
+  left: 120% !important; 
+  opacity: 0 !important;
+}
+
+.nav li .submenu li:hover .submenu {
+  left: 100% !important; 
+  opacity: 1 !important;
+}
+
+.nav li .submenu li .submenu button {
+  color: rgba(0,0,0,0.80) !important;
+}
+
+.nav li .submenu li .submenu button:hover {
+  color: #FF2E4D !important;
+  background-color: #f8f8f8 !important;
+}
+
+/* Navigation button hover effects */
+.nav li button:hover {
+  background-color: transparent !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .nav {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 0 1rem;
+  }
+  
+  .nav li {
+    flex-shrink: 0;
+  }
+}

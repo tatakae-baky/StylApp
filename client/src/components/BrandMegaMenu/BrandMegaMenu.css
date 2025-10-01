@@ -1,0 +1,266 @@
+/* Brand Megamenu Styles */
+
+/* Dropdown positioning and sizing */
+.hs-dropdown-menu {
+  max-width: 1000px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Performance optimizations */
+.hs-dropdown-menu * {
+  will-change: transform, opacity;
+}
+
+/* GPU acceleration for smooth animations */
+.hs-dropdown-menu,
+.product-card,
+.featured-brand-card,
+.brand-list-container button {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Custom scrollbar for brand list */
+.brand-list-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E0 #F7FAFC;
+  scroll-behavior: smooth;
+}
+
+.brand-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.brand-list-scroll::-webkit-scrollbar-track {
+  background: #F7FAFC;
+  border-radius: 3px;
+}
+
+.brand-list-scroll::-webkit-scrollbar-thumb {
+  background: #CBD5E0;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.brand-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: #A0AEC0;
+}
+
+/* Brand group styling */
+.brand-group {
+  margin-bottom: 0.5rem;
+}
+
+.brand-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Letter headers - sticky positioning with better performance */
+.brand-group .sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: transparent;
+}
+
+/* Featured brands grid styling */
+.featured-brands-grid {
+  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 768px) {
+  .featured-brands-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Large screens - 6 columns like Tira */
+@media (min-width: 1024px) {
+  .featured-brands-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+
+
+
+/* Product preview grid */
+.products-grid {
+  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.product-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.product-card:hover {
+  transform: translateY(-1px) translateZ(0);
+}
+
+/* Product image aspect ratio with better performance */
+.product-image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.product-image-container img {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover .product-image-container img {
+  transform: scale(1.05);
+}
+
+/* Line clamp utility for text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Loading skeleton animation with reduced motion support */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+/* Brand logo container */
+.brand-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4rem;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .hs-dropdown-menu {
+    min-width: 100vw;
+    max-width: 100vw;
+    left: 0 !important;
+    right: 0 !important;
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+  
+  .featured-brands-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+/* Focus states for accessibility */
+.brand-list-container button:focus,
+.featured-brand-card:focus,
+.product-card:focus {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .brand-list-container button,
+  .featured-brand-card,
+  .product-card,
+  .hs-dropdown-menu {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .hs-dropdown-menu {
+    border: 2px solid #000;
+    background-color: #fff;
+    backdrop-filter: none;
+  }
+  
+  .brand-list-container button:hover,
+  .product-card:hover {
+    border: 2px solid #000;
+  }
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  .hs-dropdown-menu {
+    background-color: rgba(31, 41, 55, 0.95);
+    border-color: #374151;
+  }
+  
+  .brand-group .sticky { background-color: transparent; }
+}
+
+/* Error and empty states */
+.brand-megamenu-error,
+.product-preview-empty,
+.featured-brands-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* Loading state */
+.brand-megamenu-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Performance optimization for images */
+.brand-logo-container img,
+.product-image-container img {
+  content-visibility: auto;
+  contain: layout style paint;
+}
+
+/* Intersection observer optimization */
+.lazy-load-image-background {
+  background-color: #f3f4f6;
+}
+
+/* Preloader for critical images */
+.critical-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Container queries for better responsive design */
+@container (max-width: 400px) {
+  .featured-brands-grid {
+    grid-template-columns: 1fr;
+  }
+}
