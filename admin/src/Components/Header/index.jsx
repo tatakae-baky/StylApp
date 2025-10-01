@@ -1,0 +1,389 @@
+import React, { useContext, useEffect, useState } from "react";
+import Button from "@mui/material/Button";
+import Badge from "@mui/material/Badge";
+import { styled } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
+
+import { RiMenu2Line } from "react-icons/ri";
+import { BsLayoutSidebarInset, BsLayoutSidebarInsetReverse } from "react-icons/bs";
+
+import { FaRegBell } from "react-icons/fa";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Divider from "@mui/material/Divider";
+import { FaRegUser } from "react-icons/fa6";
+import { IoMdLogOut } from "react-icons/io";
+import { MyContext } from "../../App";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { fetchDataFromApi } from "../../utils/api";
+import AddProduct from "../../Pages/Products/addProduct";
+// REMOVED: Old banner and home slide imports - replaced by new banner system
+import AddCategory from "../../Pages/Categegory/addCategory";
+import AddSubCategory from "../../Pages/Categegory/addSubCategory";
+import AddAddress from "../../Pages/Address/addAddress";
+import EditCategory from "../../Pages/Categegory/editCategory";
+
+// NEW: Import redesigned banner components
+import { AddHeroBanner } from "../../Pages/HeroBanners/AddHeroBanner";
+import { EditHeroBanner } from "../../Pages/HeroBanners/EditHeroBanner";
+import { AddSalesBanner } from "../../Pages/SalesBanners/AddSalesBanner";
+import { EditSalesBanner } from "../../Pages/SalesBanners/EditSalesBanner";
+
+import Dialog from '@mui/material/Dialog';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import { IoMdClose } from "react-icons/io";
+import Slide from '@mui/material/Slide';
+import EditProduct from "../../Pages/Products/editProduct";
+import AddBlog from "../../Pages/Blog/addBlog";
+import EditBlog from "../../Pages/Blog/editBlog";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    right: -3,
+    top: 13,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: "0 4px",
+  },
+}));
+
+
+const Header = () => {
+  const [anchorMyAcc, setAnchorMyAcc] = React.useState(null);
+  const openMyAcc = Boolean(anchorMyAcc);
+
+
+  const history = useNavigate();
+
+  const handleClickMyAcc = (event) => {
+    setAnchorMyAcc(event.currentTarget);
+  };
+  const handleCloseMyAcc = () => {
+    setAnchorMyAcc(null);
+  };
+
+  const context = useContext(MyContext);
+
+  const location = useLocation();
+
+  useEffect(() => {
+
+    fetchDataFromApi("/api/logo").then((res) => {
+      localStorage.setItem('logo', res?.logo[0]?.logo)
+    })
+
+
+    const token = localStorage.getItem('accessToken');
+
+    if (token !== undefined && token !== null && token !== "") {
+      const url = window.location.href
+      history(location.pathname)
+    } else {
+      history("/login")
+    }
+
+  }, [context?.isLogin]);
+
+
+  const logout = () => {
+    setAnchorMyAcc(null);
+
+    fetchDataFromApi(`/api/user/logout?token=${localStorage.getItem('accessToken')}`, { withCredentials: true }).then((res) => {
+      if (res?.error === false) {
+        context.setIsLogin(false);
+        context.setBrandLogo(null); // Reset brand logo on logout
+        context.setBrandLogoLoading(false); // Reset loading state
+        context.setUserDataLoaded(false); // Reset user data loaded state
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        history("/login")
+      }
+    })
+  }
+
+  return (
+    <>
+      <header
+        className={`w-full h-[auto] py-2 ${context.isSidebarOpen === true ? "pl-[22%]" : "pl-0"
+          } ${context.isSidebarOpen === true && context?.windowWidth < 992 && '!pl-80'} pr-7 bg-[#fff]  flex items-center justify-between transition-all fixed top-0 left-0 z-[50]`}
+      >
+        <div className="part1 flex items-center gap-2">
+
+          {/* Logo section - only show when sidebar is closed, positioned further left */}
+          {
+            context.isSidebarOpen === false && context?.windowWidth > 992 &&
+            <div className="col pl-4"
+              onClick={() => {
+                context?.windowWidth < 992 && context?.setisSidebarOpen(false)
+              }}
+            >
+              <Link to="/">
+                {/* Only show logo after user data is fully loaded to prevent any flicker */}
+                {!context?.userDataLoaded ? (
+                  // Show empty space until everything is loaded
+                  <div className="max-w-[80px] lg:max-w-[160px] h-[50px]"></div>
+                ) : context?.userData?.role === 'BRAND_OWNER' ? (
+                  // Brand owner: show brand logo if available
+                  context?.brandLogo ? (
+                    <img
+                      src={context.brandLogo}
+                      className="max-w-[80px] lg:max-w-[160px] h-[50px] object-contain"
+                      alt="Brand Logo"
+                    />
+                  ) : (
+                    // No brand logo available - show empty space
+                    <div className="max-w-[80px] lg:max-w-[160px] h-[50px]"></div>
+                  )
+                ) : (
+                  // Admin: show admin logo
+                  <img
+                    src={localStorage.getItem('logo')}
+                    className="max-w-[80px] lg:max-w-[160px] h-[50px] object-contain"
+                    alt="Admin Logo"
+                  />
+                )}
+              </Link>
+            </div>
+          }
+
+          {/* Sidebar toggle button with appropriate icon based on state */}
+          <Button
+            className="!w-[40px] !h-[40px] !rounded-full !min-w-[40px] !text-[rgba(0,0,0,0.8)]"
+            onClick={() => context.setisSidebarOpen(!context.isSidebarOpen)}
+          >
+            {/* Show BsLayoutSidebarInset when sidebar is closed, BsLayoutSidebarInsetReverse when open */}
+            {context.isSidebarOpen ? (
+              <BsLayoutSidebarInsetReverse className="text-[18px] text-[rgba(0,0,0,0.8)]" />
+            ) : (
+              <BsLayoutSidebarInset className="text-[18px] text-[rgba(0,0,0,0.8)]" />
+            )}
+          </Button>
+        </div>
+
+        <div className="part2  flex items-center justify-end gap-5">
+          <IconButton aria-label="cart">
+            <StyledBadge badgeContent={4} color="secondary">
+              <FaRegBell />
+            </StyledBadge>
+          </IconButton>
+
+          {context.isLogin === true ? (
+            <div className="relative">
+              <div
+                className="rounded-full w-[35px] h-[35px] overflow-hidden cursor-pointer"
+                onClick={handleClickMyAcc}
+              >
+                {
+                  context?.userData?.avatar !== "" && context?.userData?.avatar !== null && context?.userData?.avatar !== undefined ?
+                    <img
+                      src={context?.userData?.avatar}
+                      className="w-full h-full object-cover"
+                    />
+
+                    :
+
+                    <img
+                      src="/user.jpg"
+                      className="w-full h-full object-cover"
+                    />
+
+                }
+
+              </div>
+
+              <Menu
+                anchorEl={anchorMyAcc}
+                id="account-menu"
+                open={openMyAcc}
+                onClose={handleCloseMyAcc}
+                onClick={handleCloseMyAcc}
+                slotProps={{
+                  paper: {
+                    elevation: 0,
+                    sx: {
+                      overflow: "visible",
+                      filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                      mt: 1.5,
+                      "& .MuiAvatar-root": {
+                        width: 32,
+                        height: 32,
+                        ml: -0.5,
+                        mr: 1,
+                      },
+                      "&::before": {
+                        content: '""',
+                        display: "block",
+                        position: "absolute",
+                        top: 0,
+                        right: 14,
+                        width: 10,
+                        height: 10,
+                        bgcolor: "background.paper",
+                        transform: "translateY(-50%) rotate(45deg)",
+                        zIndex: 0,
+                      },
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              >
+                <MenuItem onClick={handleCloseMyAcc} className="!bg-white">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-full w-[35px] h-[35px] overflow-hidden cursor-pointer">
+                      {
+                        context?.userData?.avatar !== "" && context?.userData?.avatar !== null && context?.userData?.avatar !== undefined ?
+                          <img
+                            src={context?.userData?.avatar}
+                            className="w-full h-full object-cover"
+                          />
+
+                          :
+
+                          <img
+                            src="/user.jpg"
+                            className="w-full h-full object-cover"
+                          />
+
+                      }
+                    </div>
+
+                    <div className="info">
+                      <h3 className="text-[15px] font-[500] leading-5">
+                        {context?.userData?.name}
+                      </h3>
+                      <p className="text-[12px] font-[400] opacity-70">
+                        {context?.userData?.email}
+                      </p>
+                    </div>
+                  </div>
+                </MenuItem>
+                <Divider />
+
+                <Link to="/profile">
+                  <MenuItem
+                    onClick={handleCloseMyAcc}
+                    className="flex items-center gap-3"
+                  >
+                    <FaRegUser className="text-[16px]" />{" "}
+                    <span className="text-[14px]">Profile</span>
+                  </MenuItem>
+                </Link>
+
+                <MenuItem
+                  onClick={logout}
+                  className="flex items-center gap-3"
+                >
+                  <IoMdLogOut className="text-[18px]" />{" "}
+                  <span className="text-[14px]">Sign Out</span>
+                </MenuItem>
+              </Menu>
+            </div>
+          ) : (
+            <Link to="/login">
+              <Button className="btn-blue btn-sm !rounded-full">Sign In</Button>
+            </Link>
+          )}
+        </div>
+      </header>
+
+
+
+
+
+      <Dialog
+        fullScreen
+        open={context?.isOpenFullScreenPanel.open}
+        onClose={() => context?.setIsOpenFullScreenPanel({
+          open: false
+        })}
+        TransitionComponent={Transition}
+      >
+        <AppBar sx={{ position: 'relative' }}>
+          <Toolbar>
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={() => context?.setIsOpenFullScreenPanel({
+                open: false
+              })}
+              aria-label="close"
+            >
+              <IoMdClose className="text-gray-800" />
+            </IconButton>
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+              <span className="text-gray-800">{context?.isOpenFullScreenPanel?.model}</span>
+            </Typography>
+
+          </Toolbar>
+        </AppBar>
+
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Add Product" && <AddProduct />
+        }
+
+
+        {/* REMOVED: Home slide panels - now use routing system */}
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Add New Category" && <AddCategory />
+        }
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Add New Sub Category" && <AddSubCategory />
+        }
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Add New Address" && <AddAddress />
+        }
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Edit Category" && <EditCategory />
+        }
+
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Edit Product" && <EditProduct />
+        }
+
+
+        {/* NEW: Updated banner panels with new system */}
+        {
+          context?.isOpenFullScreenPanel?.model === "Add Hero Banner" && <AddHeroBanner />
+        }
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Edit Hero Banner" && <EditHeroBanner />
+        }
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Add Sales Banner" && <AddSalesBanner />
+        }
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Edit Sales Banner" && <EditSalesBanner />
+        }
+
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Add Blog" && <AddBlog />
+        }
+
+        {
+          context?.isOpenFullScreenPanel?.model === "Edit Blog" && <EditBlog />
+        }
+
+
+      </Dialog>
+
+    </>
+  );
+};
+
+export default Header;
